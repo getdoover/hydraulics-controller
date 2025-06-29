@@ -5,19 +5,19 @@ This ensures all modules are importable and that the config is valid.
 """
 
 def test_import_app():
-    from app_template.application import SampleApplication
-    assert SampleApplication
+    from hydraulics_controller.application import HydraulicsControllerApplication
+    assert HydraulicsControllerApplication
 
 def test_config():
-    from app_template.app_config import SampleConfig
+    from hydraulics_controller.app_config import HydraulicsControllerConfig
 
-    config = SampleConfig()
+    config = HydraulicsControllerConfig()
     assert isinstance(config.to_dict(), dict)
 
 def test_ui():
-    from app_template.app_ui import SampleUI
-    assert SampleUI
+    from hydraulics_controller.app_ui import HydraulicsControllerUI
+    assert HydraulicsControllerUI
 
 def test_state():
-    from app_template.app_state import SampleState
-    assert SampleState
+    from hydraulics_controller.app_state import HydraulicsControllerState
+    assert HydraulicsControllerState

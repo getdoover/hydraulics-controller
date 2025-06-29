@@ -92,41 +92,6 @@ wheels = [
 ]
 
 [[package]]
-name = "app-template"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "pydoover" },
-    { name = "transitions" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "aiohttp" },
-    { name = "grpcio" },
-    { name = "protobuf" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pydoover", specifier = ">=0.4.5" },
-    { name = "transitions", specifier = ">=0.9.2" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "aiohttp", specifier = ">=3.11.18" },
-    { name = "grpcio", specifier = ">=1.71.0" },
-    { name = "protobuf", specifier = ">=6.30.2" },
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pytest-asyncio", specifier = ">=0.26.0" },
-    { name = "requests", specifier = ">=2.32.3" },
-]
-
-[[package]]
 name = "attrs"
 version = "25.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -314,6 +279,41 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/aa/27/9fdfd66f65ab7e6a4477f7d0b7adf25171d3425760f138f075bc548f6bf4/grpcio-1.72.1-cp313-cp313-musllinux_1_1_x86_64.whl", hash = "sha256:c4bdb404d9c2187260b34e2b22783c204fba8a9023a166cf77376190d9cf5a08", size = 6120589, upload-time = "2025-06-02T10:10:11.06Z" },
     { url = "https://files.pythonhosted.org/packages/c3/f3/630c7a00a29001e0b82763fbd50ddcaa7c656d521f29aa58a6c8dd2b7800/grpcio-1.72.1-cp313-cp313-win32.whl", hash = "sha256:bb64722c3124c906a5b66e50a90fd36442642f653ba88a24f67d08e94bca59f3", size = 3545905, upload-time = "2025-06-02T10:10:13.521Z" },
     { url = "https://files.pythonhosted.org/packages/c4/10/b6186e92eba035315affc30dfeabf65594dd6f778b92627fae5f40e7beec/grpcio-1.72.1-cp313-cp313-win_amd64.whl", hash = "sha256:329cc6ff5b431df9614340d3825b066a1ff0a5809a01ba2e976ef48c65a0490b", size = 4221454, upload-time = "2025-06-02T10:10:16.73Z" },
+]
+
+[[package]]
+name = "hydraulics-controller"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "pydoover" },
+    { name = "transitions" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "aiohttp" },
+    { name = "grpcio" },
+    { name = "protobuf" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pydoover", specifier = ">=0.4.8" },
+    { name = "transitions", specifier = ">=0.9.2" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "aiohttp", specifier = ">=3.11.18" },
+    { name = "grpcio", specifier = ">=1.71.0" },
+    { name = "protobuf", specifier = ">=6.30.2" },
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-asyncio", specifier = ">=0.26.0" },
+    { name = "requests", specifier = ">=2.32.3" },
 ]
 
 [[package]]
@@ -518,14 +518,14 @@ wheels = [
 
 [[package]]
 name = "pydoover"
-version = "0.4.5"
+version = "0.4.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cd/13/f12160eb7217b76c09b3790dc64de5bc37924f234432054616dcb4a5e15e/pydoover-0.4.5.tar.gz", hash = "sha256:39e5364cecc29a2ffbc7f4618c8589f27abde0f1b63ac95d821e2abb13a7aeda", size = 115998, upload-time = "2025-06-20T03:15:05.08Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/48/05373b6a5eaae004c49363d3801afc3e5f16ba6a46caeb480db674a061f2/pydoover-0.4.9.tar.gz", hash = "sha256:dc29454862b034af468143e3d4f61d2558bef6bf84359b595702b9e48231ea91", size = 162991, upload-time = "2025-06-27T01:46:24.128Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2e/8c/bb6f5982bde36d6dcacc36de191f9a30985a2d63911881d52c340a16fec8/pydoover-0.4.5-py3-none-any.whl", hash = "sha256:6dd8581ccb58859e3a3aebb33988bb75a25dabb7d03ccd785622bfcb911c0960", size = 132016, upload-time = "2025-06-20T03:15:03.087Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/1a/b11995e474f813d8851a4b5d7a128c8442159c545ed643c59c532561380b/pydoover-0.4.9-py3-none-any.whl", hash = "sha256:c5ed52f01bd43addb4239d046883d2855111e91ecb6a164018d52e9e0697cac7", size = 141395, upload-time = "2025-06-27T01:46:22.023Z" },
 ]
 
 [[package]]

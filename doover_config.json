@@ -1,17 +1,16 @@
 {
-    "sample_application": {
-        "key": "32134bbb-5278-43c0-a6ca-4046a5edeb9f",
-        "name": "sample_application",
-        "display_name": "Sample Application",
+    "hydraulics_controller": {
+        "name": "hydraulics_controller",
+        "display_name": "Hydraulics Controller",
         "type": "DEV",
         "visibility": "PUB",
         "allow_many": true,
-        "description": "A template application for Doover",
+        "description": "A Doover App for controlling a set of hydraulic remotes",
         "long_description": "README.md",
         "depends_on": [],
-        "owner_org": "",
-        "image_name": "ghcr.io/getdoover/app_template",
-        "container_registry_profile": "",
+        "owner_org": "36a22e32-ab81-4a39-b400-869d532a052d",
+        "image_name": "ghcr.io/getdoover/hydraulics-controller:main",
+        "container_registry_profile": "88953909-e9c4-4f81-9ec0-56239d4b0a2e",
         "build_args": "--platform linux/amd64,linux/arm64",
         "config_schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -19,32 +18,100 @@
             "title": "Application Config",
             "type": "object",
             "properties": {
-                "digital_outputs_enabled": {
-                    "title": "Digital Outputs Enabled",
-                    "x-name": "digital_outputs_enabled",
+                "hydraulic_remotes": {
+                    "title": "Hydraulic Remotes",
+                    "x-name": "hydraulic_remotes",
                     "x-hidden": false,
-                    "type": "boolean",
-                    "default": true
+                    "type": "array",
+                    "items": {
+                        "title": "Hydraulic Remote",
+                        "x-name": "hydraulic_remote",
+                        "x-hidden": false,
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "title": "Name",
+                                "x-name": "name",
+                                "x-hidden": false,
+                                "type": "string",
+                                "description": "Name for this remote"
+                            },
+                            "two_way?": {
+                                "title": "Two Way?",
+                                "x-name": "two_way?",
+                                "x-hidden": false,
+                                "type": "boolean",
+                                "description": "Is this a two way remote?",
+                                "default": true
+                            },
+                            "forward_label": {
+                                "title": "Forward Label",
+                                "x-name": "forward_label",
+                                "x-hidden": false,
+                                "type": "string",
+                                "description": "E.g. Gate 'Up'/'Down', 'Engage', 'In'/'Out' etc.",
+                                "default": "Forward"
+                            },
+                            "reverse_label": {
+                                "title": "Reverse Label",
+                                "x-name": "reverse_label",
+                                "x-hidden": false,
+                                "type": "string",
+                                "description": "Same as forward label. Only applicable for two way remotes.",
+                                "default": "Reverse"
+                            },
+                            "forward_pin": {
+                                "title": "Forward Pin",
+                                "x-name": "forward_pin",
+                                "x-hidden": false,
+                                "type": "integer",
+                                "description": "Pin number for forward action"
+                            },
+                            "reverse_pin": {
+                                "title": "Reverse Pin",
+                                "x-name": "reverse_pin",
+                                "x-hidden": false,
+                                "type": "integer",
+                                "description": "Pin number for reverse action, only applicable for two way remotes"
+                            },
+                            "priority": {
+                                "title": "Priority",
+                                "x-name": "priority",
+                                "x-hidden": false,
+                                "type": "integer",
+                                "description": "Lower number = higher priority. If multiple remotes are active, the one with the lowest priority will be stopped.",
+                                "default": 1
+                            }
+                        },
+                        "additionalElements": false,
+                        "required": [
+                            "name",
+                            "forward_pin",
+                            "reverse_pin"
+                        ]
+                    }
                 },
-                "a_funny_message": {
-                    "title": "A Funny Message",
-                    "x-name": "a_funny_message",
+                "max_concurrent_remotes": {
+                    "title": "Max Concurrent Remotes",
+                    "x-name": "max_concurrent_remotes",
                     "x-hidden": false,
-                    "type": "string"
+                    "type": "integer",
+                    "description": "Maximum number of remotes to run concurrently"
                 },
-                "simulator_app_key": {
+                "motor_controller": {
                     "format": "doover-application",
-                    "title": "Simulator App Key",
-                    "x-name": "simulator_app_key",
+                    "title": "Motor Controller",
+                    "x-name": "motor_controller",
                     "x-hidden": false,
                     "type": "string",
-                    "description": "The app key for the simulator"
+                    "description": "(Optional) The motor controller powering the hydraulic pump",
+                    "default": null
                 }
             },
             "additionalElements": true,
             "required": [
-                "a_funny_message",
-                "simulator_app_key"
+                "hydraulic_remotes",
+                "max_concurrent_remotes"
             ]
         }
     }
