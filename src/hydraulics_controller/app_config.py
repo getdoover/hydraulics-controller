@@ -9,7 +9,7 @@ class HydraulicsControllerConfig(config.Schema):
         hyd_remote_elem = config.Object("Hydraulic Remote")
         hyd_remote_elem.add_elements(
             config.String("Name", description="Name for this remote"),
-            config.Boolean("Two Way?", default=True, description="Is this a two way remote?"),
+            config.Boolean("Two Way", default=True, description="Is this a two way remote?"),
             config.String("Forward Label", default="Forward", description="E.g. Gate 'Up'/'Down', 'Engage', 'In'/'Out' etc."),
             config.String("Reverse Label", default="Reverse", description="Same as forward label. Only applicable for two way remotes."),
             config.Integer("Forward Pin", description="Pin number for forward action"),

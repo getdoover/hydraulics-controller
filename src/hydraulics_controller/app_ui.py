@@ -8,9 +8,9 @@ class HydraulicsControllerUI:
     def __init__(self, config: HydraulicsControllerConfig):
 
         self.remotes = {}
-        for remote in config.hydraulic_remotes:
+        for remote in config.hydraulic_remotes.elements:
             remote_key = get_remote_key(remote)
-            
+
             if remote.two_way.value:
                 options = [
                     ui.Option("off", "Off"),
@@ -25,7 +25,7 @@ class HydraulicsControllerUI:
 
             self.remotes[remote] = ui.StateCommand(
                 remote_key,
-                remote.name,
+                remote.name.value,
                 user_options=options,
                 default="off",
             )

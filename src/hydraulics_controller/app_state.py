@@ -11,13 +11,13 @@ class HydraulicsControllerState:
     error_timeout_secs = 60 * 60 * 24  # 24 hours
 
     states = [
-        {"name": "off", "display_string": None},
-        {"name": "error", "display_string": "Error", "timeout": error_timeout_secs, "on_timeout": "clear_error"},
-        {"name": "user_prep", "display_string": None, "timeout": prep_timeout_secs, "on_timeout": "error"},
-        {"name": "user_active", "display_string": None},
-        {"name": "auto_prep", "display_string": None, "timeout": prep_timeout_secs, "on_timeout": "error"},
-        {"name": "auto_active", "display_string": None},
-        {"name": "test", "display_string": "Test Mode", "timeout": error_timeout_secs, "on_timeout": "stop"},
+        {"name": "off"},
+        {"name": "error", "timeout": error_timeout_secs, "on_timeout": "clear_error"},
+        {"name": "user_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
+        {"name": "user_active"},
+        {"name": "auto_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
+        {"name": "auto_active"},
+        {"name": "test", "timeout": error_timeout_secs, "on_timeout": "stop"},
     ]
 
     transitions = [
@@ -26,8 +26,8 @@ class HydraulicsControllerState:
         {"trigger": "user_ready", "source": ["user_prep"], "dest": "user_active"},
         {"trigger": "auto_start_prep", "source": ["off", "error"], "dest": "auto_prep"},
         {"trigger": "auto_ready", "source": ["auto_prep"], "dest": "auto_active"},
-        {"trigger": "stop", "source": ["test","user_start_prep", "user_active","auto_start_prep","auto_active"], "dest": "off"},
-        {"trigger": "start_test", "source": ["off", "error"], "dest": "test"},
+        {"trigger": "stop", "source": ["test","user_prep", "user_active","auto_prep","auto_active"], "dest": "off"},
+        {"trigger": "start_test", "source": "*", "dest": "test"},
     ]
 
     def __init__(self, app):
@@ -41,6 +41,17 @@ class HydraulicsControllerState:
             queued=True,
         )
 
+    def get_state_display_string(self):
+        strings = {
+            "off": None,
+            "error": "Error",
+            "user_prep": None,
+            "user_active": None,
+            "auto_prep": None,
+        }
+        return strings.get(self.state, None)
+
+
     async def spin_state(self): 
         last_state = None
         ## keep spinning until state has stabilised
@@ -53,39 +64,39 @@ class HydraulicsControllerState:
     async def evaluate_state(self):
         s = self.state
 
-        if self.app.get_test_command():
+        if s != "test" and self.app.get_test_command():
             await self.start_test()
 
-        if s in ["off", "error"]:
+        elif s in ["off", "error"]:
             if self.app.has_user_command():
                 await self.user_start_prep()
             if self.app.has_auto_command_requests():
                 await self.auto_start_prep()
 
-        if s == "user_prep":
+        elif s == "user_prep":
             if not self.app.has_user_command():
                 await self.stop()
             if self.app.is_user_active_ready():
                 await self.user_ready()
         
-        if s == "user_active":
+        elif s == "user_active":
             if not self.app.has_user_command():
                 await self.stop()
             if not self.app.is_user_active_ready():
                 await self.error()
         
-        if s == "auto_prep":
+        elif s == "auto_prep":
             if not self.app.has_auto_command_requests():
                 await self.stop()
             if self.app.is_auto_active_ready():
                 await self.auto_ready()
         
-        if s == "auto_active":
+        elif s == "auto_active":
             if not self.app.has_auto_command_requests():
                 await self.stop()
             if not self.app.is_auto_active_ready():
                 await self.error()
 
-        if s == "test":
+        elif s == "test":
             if not self.app.get_test_command():
                 await self.stop()

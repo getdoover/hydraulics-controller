@@ -37,51 +37,52 @@ class HydraulicsControllerApplication(Application):
     async def setup(self):
         self.ui = HydraulicsControllerUI(config=self.config)
         self.state = HydraulicsControllerState(self)
+        self.ui_manager.set_display_name("Hydraulics")
         self.ui_manager.add_children(*self.ui.fetch())
 
     async def main_loop(self):
         s = await self.state.spin_state()
         log.info(f"State is: {s}")
 
-        self.update_remote_tags()
+        await self.update_remote_tags()
 
         run_motor = None
 
         if s == "off":
             self.coerce_ui_commands_off()
-            self.write_pins() # Write all pins off
+            await self.write_pins() # Write all pins off
 
         if s == "error":
             self.coerce_ui_commands_off()
-            self.write_pins() # Write all pins off
+            await self.write_pins() # Write all pins off
 
         if s == "user_prep":
             run_motor = True
-            self.write_pins() # Write all pins off
+            await self.write_pins() # Write all pins off
 
         if s == "user_active":
             run_motor = True
-            self.write_pins(self.get_active_pins())
+            await self.write_pins(self.get_active_pins())
         
         if s == "auto_prep":
             run_motor = True
             self.coerce_ui_commands()
-            self.write_pins() # Write all pins off
+            await self.write_pins() # Write all pins off
 
         if s == "auto_active":
             run_motor = True
             self.coerce_ui_commands()
-            self.write_pins(self.get_active_pins())
+            await self.write_pins(self.get_active_pins())
 
         if s == "test":
             run_motor = True
 
         if run_motor:
-            self.update_motor_control_request()
+            await self.update_motor_control_request()
 
 
     async def update_motor_control_request(self, reason="Hydraulics"):
-        self.set_tag("run_request_reason", reason, self.config.motor_controller.value)
+        await self.set_tag_async("run_request_reason", reason, self.config.motor_controller.value)
 
     async def update_remote_tags(self):
         """Publish tag information about what is happening with the remotes"""
@@ -171,7 +172,7 @@ class HydraulicsControllerApplication(Application):
         for remote in self.config.hydraulic_remotes.elements:
             remote_key = get_remote_key(remote)
             request_value = self.get_tag(f"request_{remote_key}")
-            if request_value in self.is_command_request_valid(remote, request_value):
+            if self.is_command_request_valid(remote, request_value):
                 commands[remote] = request_value
         return commands
     
@@ -225,11 +226,11 @@ class HydraulicsControllerApplication(Application):
         active_pins = list(set([pin for pin in active_pins if pin is not None]))
         return active_pins
     
-    def write_pins(self, active_pins=[]):
+    async def write_pins(self, active_pins=[]):
         all_pins = self.get_all_remote_pins()
         outputs = [False] * len(all_pins)
 
         for pin in active_pins:
             outputs[all_pins.index(pin)] = True
 
-        self.platform_iface.set_do(all_pins, outputs)
+        await self.platform_iface.set_do_async(all_pins, outputs)

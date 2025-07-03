@@ -36,9 +36,9 @@
                                 "type": "string",
                                 "description": "Name for this remote"
                             },
-                            "two_way?": {
-                                "title": "Two Way?",
-                                "x-name": "two_way?",
+                            "two_way": {
+                                "title": "Two Way",
+                                "x-name": "two_way",
                                 "x-hidden": false,
                                 "type": "boolean",
                                 "description": "Is this a two way remote?",
@@ -113,6 +113,9 @@
                 "hydraulic_remotes",
                 "max_concurrent_remotes"
             ]
-        }
+        },
+        "key": "22d7b209-d402-4968-9598-69698f94625a",
+        "repo_branch": "main",
+        "staging_config": {}
     }
 }
