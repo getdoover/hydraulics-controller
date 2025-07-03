@@ -16,8 +16,8 @@ def config_to_ui_remote(config_remote, ui):
             return ui_remote
     return None
 
-def ui_remote_to_config(config, ui_remote):
-    for remote in config.hydraulic_remotes:
+def ui_remote_to_config(config: HydraulicsControllerConfig, ui_remote):
+    for remote in config.hydraulic_remotes.elements:
         if remote.name.value == ui_remote.name.value:
             return remote
     return None
@@ -87,7 +87,7 @@ class HydraulicsControllerApplication(Application):
         """Publish tag information about what is happening with the remotes"""
 
         ## Get all remotes
-        remaining_remotes = self.config.hydraulic_remotes
+        remaining_remotes = self.config.hydraulic_remotes.elements
         if self.state.state in ["auto_active"]:
             next_command_requests = self.get_next_auto_command_requests()
             ## If the state is active, publish the next command requests
@@ -168,7 +168,7 @@ class HydraulicsControllerApplication(Application):
     def get_auto_command_requests(self):
         commands = {}
         ## cycle through the names of all remotes to find any tags that have a value
-        for remote in self.config.hydraulic_remotes:
+        for remote in self.config.hydraulic_remotes.elements:
             remote_key = get_remote_key(remote)
             request_value = self.get_tag(f"request_{remote_key}")
             if request_value in self.is_command_request_valid(remote, request_value):
@@ -197,7 +197,7 @@ class HydraulicsControllerApplication(Application):
     
     def get_all_remote_pins(self):
         pins = []
-        for remote in self.config.hydraulic_remotes:
+        for remote in self.config.hydraulic_remotes.elements:
             pins.append(remote.forward_pin.value)
             if remote.two_way.value:
                 pins.append(remote.reverse_pin.value)
