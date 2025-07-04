@@ -16,7 +16,7 @@ class HydraulicsControllerState:
         {"name": "user_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
         {"name": "user_active"},
         {"name": "auto_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
-        {"name": "auto_active"},
+        {"name": "auto_active", "on_exit": "clear_user_commands"},
         {"name": "test", "timeout": error_timeout_secs, "on_timeout": "stop"},
     ]
 
@@ -68,35 +68,38 @@ class HydraulicsControllerState:
             await self.start_test()
 
         elif s in ["off", "error"]:
-            if self.app.has_user_command():
-                await self.user_start_prep()
             if self.app.has_auto_command_requests():
                 await self.auto_start_prep()
+            elif self.app.has_user_command():
+                await self.user_start_prep()
 
         elif s == "user_prep":
             if not self.app.has_user_command():
                 await self.stop()
-            if self.app.is_user_active_ready():
+            elif self.app.is_user_active_ready():
                 await self.user_ready()
         
         elif s == "user_active":
             if not self.app.has_user_command():
                 await self.stop()
-            if not self.app.is_user_active_ready():
+            elif not self.app.is_user_active_ready():
                 await self.error()
         
         elif s == "auto_prep":
             if not self.app.has_auto_command_requests():
                 await self.stop()
-            if self.app.is_auto_active_ready():
+            elif self.app.is_auto_active_ready():
                 await self.auto_ready()
         
         elif s == "auto_active":
             if not self.app.has_auto_command_requests():
                 await self.stop()
-            if not self.app.is_auto_active_ready():
+            elif not self.app.is_auto_active_ready():
                 await self.error()
 
         elif s == "test":
             if not self.app.get_test_command():
                 await self.stop()
+
+    async def clear_user_commands(self):
+        self.app.coerce_ui_commands_off()

@@ -1,6 +1,6 @@
 import logging
 import time
-
+import copy
 from pydoover.docker import Application
 from pydoover import ui
 
@@ -11,10 +11,7 @@ from .app_state import HydraulicsControllerState
 log = logging.getLogger()
 
 def config_to_ui_remote(config_remote, ui):
-    for ui_remote in ui.remotes:
-        if ui_remote.name.value == config_remote.name.value:
-            return ui_remote
-    return None
+    return ui.remotes[config_remote]
 
 def ui_remote_to_config(config: HydraulicsControllerConfig, ui_remote):
     for remote in config.hydraulic_remotes.elements:
@@ -32,6 +29,8 @@ class HydraulicsControllerApplication(Application):
         self.ui: HydraulicsControllerUI = None
         self.state: HydraulicsControllerState = None
 
+        self._last_pin_write = None
+
         self.loop_target_period = 0.25  # seconds
 
     async def setup(self):
@@ -39,6 +38,7 @@ class HydraulicsControllerApplication(Application):
         self.state = HydraulicsControllerState(self)
         self.ui_manager.set_display_name("Hydraulics")
         self.ui_manager.add_children(*self.ui.fetch())
+        self.ui.coerce_default_values()
 
     async def main_loop(self):
         s = await self.state.spin_state()
@@ -75,39 +75,44 @@ class HydraulicsControllerApplication(Application):
             await self.write_pins(self.get_active_pins())
 
         if s == "test":
-            run_motor = True
+            await self.write_pins(self.get_active_pins())
+
 
         if run_motor:
-            await self.update_motor_control_request()
+            await self.update_motor_control_request("Hydraulics")
+        else:
+            await self.update_motor_control_request(None)
 
 
-    async def update_motor_control_request(self, reason="Hydraulics"):
+    async def update_motor_control_request(self, reason=None):
         await self.set_tag_async("run_request_reason", reason, self.config.motor_controller.value)
 
     async def update_remote_tags(self):
         """Publish tag information about what is happening with the remotes"""
 
         ## Get all remotes
-        remaining_remotes = self.config.hydraulic_remotes.elements
+        remaining_remotes = copy.deepcopy(self.config.hydraulic_remotes.elements)
         if self.state.state in ["auto_active"]:
             next_command_requests = self.get_next_auto_command_requests()
             ## If the state is active, publish the next command requests
-            for remote, request_value in next_command_requests:
+            for remote, request_value in next_command_requests.items():
                 remote_key = get_remote_key(remote)
-                self.set_tag(f"{remote_key}", request_value)
-                remaining_remotes.remove(remote)
+                await self.set_tag_async(f"{remote_key}", request_value)
+                if remote in remaining_remotes:
+                    remaining_remotes.remove(remote)
         
         if self.state.state in ["user_active"]:
             user_commands = self.get_user_commands()
             for remote, request_value in user_commands.items():
                 remote_key = get_remote_key(remote)
-                self.set_tag(f"{remote_key}", request_value)
-                remaining_remotes.remove(remote)
+                await self.set_tag_async(f"{remote_key}", request_value)
+                if remote in remaining_remotes:
+                    remaining_remotes.remove(remote)
 
         ## If there are any remotes left, publish them as "off"
         for remote in remaining_remotes:
             remote_key = get_remote_key(remote)
-            self.set_tag(f"{remote_key}", "off")
+            await self.set_tag_async(f"{remote_key}", "off")
 
     def coerce_ui_commands_off(self):
         """Coerce all remotes to be off"""
@@ -155,7 +160,7 @@ class HydraulicsControllerApplication(Application):
     def is_auto_active_ready(self):
         ## If the motor controller reports that it is ready, return True
         tag_value = self.get_tag("state", self.config.motor_controller.value)
-        if tag_value == ["running_auto"]:
+        if tag_value == "running_auto":
             return True
         return False
     
@@ -189,12 +194,12 @@ class HydraulicsControllerApplication(Application):
     def get_next_auto_command_requests(self, max_concurrent_remotes=1):
         ## Get all command requests and sort them by priority
         command_requests = self.get_auto_command_requests()
-        sorted_command_requests = sorted(command_requests.items(), key=lambda x: x[1].priority)
+        sorted_command_request_keys = sorted(command_requests.keys(), key=lambda x: x.priority.value)
         ## If the number of command requests is greater than the max concurrent remotes, return the first max_concurrent_remotes
-        if len(sorted_command_requests) > max_concurrent_remotes:
-            return sorted_command_requests[:max_concurrent_remotes]
-        ## Otherwise return all the command requests
-        return sorted_command_requests
+        if len(sorted_command_request_keys) > max_concurrent_remotes:
+            sorted_command_request_keys = sorted_command_request_keys[:max_concurrent_remotes]
+        ## Return the full dictionary with only the keys that are in the sorted list
+        return {key: command_requests[key] for key in sorted_command_request_keys}
     
     def get_all_remote_pins(self):
         pins = []
@@ -233,4 +238,6 @@ class HydraulicsControllerApplication(Application):
         for pin in active_pins:
             outputs[all_pins.index(pin)] = True
 
-        await self.platform_iface.set_do_async(all_pins, outputs)
+        if self._last_pin_write != outputs:
+            self._last_pin_write = outputs
+            await self.platform_iface.set_do_async(all_pins, outputs)

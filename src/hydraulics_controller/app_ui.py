@@ -47,3 +47,11 @@ class HydraulicsControllerUI:
 
     def update(self):
         pass
+
+    def coerce_default_values(self):
+        for remote in self.remotes.values():
+            if remote.current_value == None:
+                remote.coerce("off")
+
+        if self.motor_control_mode.current_value == None:   
+            self.motor_control_mode.coerce("auto")
