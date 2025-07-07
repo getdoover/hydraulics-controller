@@ -20,9 +20,6 @@ build-backend = "hatchling.build"
 pythonpath = ["src"]
 testpaths = ["tests"]
 
-[tool.uv.sources]
-pydoover = { git = "https://github.com/getdoover/pydoover" }
-
 [dependency-groups]
 dev = [
     "aiohttp>=3.11.18",
