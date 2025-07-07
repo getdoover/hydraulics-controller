@@ -9,7 +9,7 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 ENV UV_PYTHON_DOWNLOADS=0
 
 # Install git for cloning repositories
-RUN apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
+RUN #apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
