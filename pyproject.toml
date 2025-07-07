@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "pydoover @ git+https://github.com/getdoover/pydoover.git",
+    "pydoover",
     "transitions>=0.9.2",
 ]
 
@@ -16,12 +16,12 @@ doover-app-run = "hydraulics_controller:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.uv.sources]
+pydoover = { git = "https://github.com/getdoover/pydoover" }
 
 [dependency-groups]
 dev = [
