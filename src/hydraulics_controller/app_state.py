@@ -12,7 +12,7 @@ class HydraulicsControllerState:
 
     states = [
         {"name": "off"},
-        {"name": "error", "timeout": error_timeout_secs, "on_timeout": "clear_error"},
+        {"name": "error", "timeout": error_timeout_secs, "on_timeout": "stop"},
         {"name": "user_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
         {"name": "user_active"},
         {"name": "auto_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
@@ -26,7 +26,7 @@ class HydraulicsControllerState:
         {"trigger": "user_ready", "source": ["user_prep"], "dest": "user_active"},
         {"trigger": "auto_start_prep", "source": ["off", "error"], "dest": "auto_prep"},
         {"trigger": "auto_ready", "source": ["auto_prep"], "dest": "auto_active"},
-        {"trigger": "stop", "source": ["test","user_prep", "user_active","auto_prep","auto_active"], "dest": "off"},
+        {"trigger": "stop", "source": "*", "dest": "off"},
         {"trigger": "start_test", "source": "*", "dest": "test"},
     ]
 
