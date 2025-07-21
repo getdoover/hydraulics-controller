@@ -27,6 +27,7 @@ class HydraulicsControllerState:
         {"trigger": "auto_start_prep", "source": ["off", "error"], "dest": "auto_prep"},
         {"trigger": "auto_ready", "source": ["auto_prep"], "dest": "auto_active"},
         {"trigger": "stop", "source": "*", "dest": "off"},
+        {"trigger": "auto_stop", "source": ["auto_prep", "auto_active"], "dest": "off", "after": "clear_user_commands"},
         {"trigger": "start_test", "source": "*", "dest": "test"},
     ]
 
@@ -87,13 +88,13 @@ class HydraulicsControllerState:
         
         elif s == "auto_prep":
             if not self.app.has_auto_command_requests():
-                await self.stop()
+                await self.auto_stop()
             elif self.app.is_auto_active_ready():
                 await self.auto_ready()
         
         elif s == "auto_active":
             if not self.app.has_auto_command_requests():
-                await self.stop()
+                await self.auto_stop()
             elif not self.app.is_auto_active_ready():
                 await self.error()
 

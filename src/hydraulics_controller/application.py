@@ -91,27 +91,22 @@ class HydraulicsControllerApplication(Application):
         """Publish tag information about what is happening with the remotes"""
 
         ## Get all remotes
-        remaining_remotes = copy.deepcopy(self.config.hydraulic_remotes.elements)
+        remaining_remote_keys = [get_remote_key(remote) for remote in self.config.hydraulic_remotes.elements]
+        active_remotes = {}
         if self.state.state in ["auto_active"]:
-            next_command_requests = self.get_next_auto_command_requests()
-            ## If the state is active, publish the next command requests
-            for remote, request_value in next_command_requests.items():
-                remote_key = get_remote_key(remote)
-                await self.set_tag_async(f"{remote_key}", request_value)
-                if remote in remaining_remotes:
-                    remaining_remotes.remove(remote)
-        
-        if self.state.state in ["user_active"]:
-            user_commands = self.get_user_commands()
-            for remote, request_value in user_commands.items():
-                remote_key = get_remote_key(remote)
-                await self.set_tag_async(f"{remote_key}", request_value)
-                if remote in remaining_remotes:
-                    remaining_remotes.remove(remote)
+            active_remotes = self.get_next_auto_command_requests()
+        elif self.state.state in ["user_active"]:
+            active_remotes = self.get_user_commands()
+
+        ## If the state is active, publish the next command requests
+        for remote, request_value in active_remotes.items():
+            remote_key = get_remote_key(remote)
+            await self.set_tag_async(f"{remote_key}", request_value)
+            if remote_key in remaining_remote_keys:
+                remaining_remote_keys.remove(remote_key)
 
         ## If there are any remotes left, publish them as "off"
-        for remote in remaining_remotes:
-            remote_key = get_remote_key(remote)
+        for remote_key in remaining_remote_keys:
             await self.set_tag_async(f"{remote_key}", "off")
 
     def coerce_ui_commands_off(self):
