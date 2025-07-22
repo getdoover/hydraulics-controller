@@ -11,12 +11,17 @@ from .app_state import HydraulicsControllerState
 log = logging.getLogger()
 
 def config_to_ui_remote(config_remote, ui):
-    return ui.remotes[config_remote]
+    remote_key = get_remote_key(config_remote)
+    if remote_key not in ui.remotes:
+        log.error(f"Remote {remote_key} not found in UI")
+        return None
+    return ui.remotes[remote_key]
 
-def ui_remote_to_config(config: HydraulicsControllerConfig, ui_remote):
+def get_config_remote(config: HydraulicsControllerConfig, remote_key):
     for remote in config.hydraulic_remotes.elements:
-        if remote.name.value == ui_remote.name.value:
+        if get_remote_key(remote) == remote_key:
             return remote
+    log.error(f"Remote {remote_key} not found in config")
     return None
 
 class HydraulicsControllerApplication(Application):
@@ -94,9 +99,10 @@ class HydraulicsControllerApplication(Application):
         remaining_remote_keys = [get_remote_key(remote) for remote in self.config.hydraulic_remotes.elements]
         active_remotes = {}
         if self.state.state in ["auto_active"]:
-            active_remotes = self.get_next_auto_command_requests()
-        elif self.state.state in ["user_active"]:
-            active_remotes = self.get_user_commands()
+            ## Merge auto command requests to active remotes
+            active_remotes.update(self.get_next_auto_command_requests())
+        elif self.state.state in ["user_active", "test"]:
+            active_remotes.update(self.get_user_commands())
 
         ## If the state is active, publish the next command requests
         for remote, request_value in active_remotes.items():
@@ -161,8 +167,9 @@ class HydraulicsControllerApplication(Application):
     
     def get_user_commands(self):
         commands = {}
-        for config_remote, ui_remote in self.ui.remotes.items():
+        for remote_key, ui_remote in self.ui.remotes.items():
             if ui_remote.current_value != "off":
+                config_remote = get_config_remote(self.config, remote_key)
                 commands[config_remote] = ui_remote.current_value
         return commands
 

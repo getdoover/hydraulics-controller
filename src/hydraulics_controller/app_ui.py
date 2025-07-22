@@ -23,7 +23,7 @@ class HydraulicsControllerUI:
                     ui.Option("forward", remote.forward_label.value),
                 ]
 
-            self.remotes[remote] = ui.StateCommand(
+            self.remotes[remote_key] = ui.StateCommand(
                 remote_key,
                 remote.name.value,
                 user_options=options,
