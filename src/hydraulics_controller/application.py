@@ -98,10 +98,10 @@ class HydraulicsControllerApplication(Application):
         ## Get all remotes
         remaining_remote_keys = [get_remote_key(remote) for remote in self.config.hydraulic_remotes.elements]
         active_remotes = {}
-        if self.state.state in ["auto_active"]:
+        if self.state.state in ["auto_active", "test"]:
             ## Merge auto command requests to active remotes
             active_remotes.update(self.get_next_auto_command_requests())
-        elif self.state.state in ["user_active", "test"]:
+        if self.state.state in ["user_active", "test"]:
             active_remotes.update(self.get_user_commands())
 
         ## If the state is active, publish the next command requests
@@ -179,7 +179,7 @@ class HydraulicsControllerApplication(Application):
         for remote in self.config.hydraulic_remotes.elements:
             remote_key = get_remote_key(remote)
             request_value = self.get_tag(f"request_{remote_key}")
-            if self.is_command_request_valid(remote, request_value):
+            if self.is_command_request_valid(remote, request_value) and request_value != "off":
                 commands[remote] = request_value
         return commands
     
