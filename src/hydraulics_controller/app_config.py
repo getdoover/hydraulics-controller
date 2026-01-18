@@ -33,5 +33,8 @@ class HydraulicsControllerConfig(config.Schema):
         )
 
 
-if __name__ == "__main__":
+def export():
     HydraulicsControllerConfig().export(Path(__file__).parents[2] / "doover_config.json", "hydraulics_controller")
+
+if __name__ == "__main__":
+    export()

@@ -7,7 +7,9 @@
         "allow_many": true,
         "description": "A Doover App for controlling a set of hydraulic remotes",
         "long_description": "README.md",
-        "depends_on": ["platform_interface"],
+        "depends_on": [
+            "platform_interface"
+        ],
         "owner_org": "36a22e32-ab81-4a39-b400-869d532a052d",
         "image_name": "ghcr.io/getdoover/hydraulics-controller:main",
         "container_registry_profile": "88953909-e9c4-4f81-9ec0-56239d4b0a2e",
@@ -83,7 +85,7 @@
                                 "default": 1
                             }
                         },
-                        "additionalElements": false,
+                        "additionalElements": true,
                         "required": [
                             "name",
                             "forward_pin",
