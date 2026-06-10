@@ -9,20 +9,20 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 ENV UV_PYTHON_DOWNLOADS=0
 
 # Install git for cloning repositories
-RUN #apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# give the app access to our pipenv installed packages
 RUN uv venv --system-site-packages
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project --no-dev
+    SKIP=$(uv pip freeze --system | sed -E 's/[[:space:]@=].*//; s/^/--no-install-package /' | tr '\n' ' ') && \
+    uv sync --locked --no-install-project --no-dev $SKIP
 
 COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
+    SKIP=$(uv pip freeze --system | sed -E 's/[[:space:]@=].*//; s/^/--no-install-package /' | tr '\n' ' ') && \
+    uv sync --locked --no-dev $SKIP
 
 
 ## SECOND STAGE ##
