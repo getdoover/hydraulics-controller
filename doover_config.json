@@ -17,7 +17,7 @@
         "config_schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "",
-            "title": "Application Config",
+            "title": "$default",
             "type": "object",
             "properties": {
                 "hydraulic_remotes": {
@@ -25,95 +25,139 @@
                     "x-name": "hydraulic_remotes",
                     "x-hidden": false,
                     "type": "array",
+                    "x-required": true,
+                    "x-position": 0,
                     "items": {
                         "title": "Hydraulic Remote",
                         "x-name": "hydraulic_remote",
                         "x-hidden": false,
                         "type": "object",
+                        "x-required": true,
                         "properties": {
                             "name": {
                                 "title": "Name",
                                 "x-name": "name",
                                 "x-hidden": false,
                                 "type": "string",
-                                "description": "Name for this remote"
+                                "x-required": true,
+                                "description": "Name for this remote",
+                                "x-position": 1
                             },
                             "two_way": {
                                 "title": "Two Way",
                                 "x-name": "two_way",
                                 "x-hidden": false,
-                                "type": "boolean",
+                                "type": [
+                                    "boolean",
+                                    "null"
+                                ],
+                                "x-required": false,
                                 "description": "Is this a two way remote?",
-                                "default": true
+                                "default": true,
+                                "x-position": 2
                             },
                             "forward_label": {
                                 "title": "Forward Label",
                                 "x-name": "forward_label",
                                 "x-hidden": false,
-                                "type": "string",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "x-required": false,
                                 "description": "E.g. Gate 'Up'/'Down', 'Engage', 'In'/'Out' etc.",
-                                "default": "Forward"
+                                "default": "Forward",
+                                "x-position": 3
                             },
                             "reverse_label": {
                                 "title": "Reverse Label",
                                 "x-name": "reverse_label",
                                 "x-hidden": false,
-                                "type": "string",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "x-required": false,
                                 "description": "Same as forward label. Only applicable for two way remotes.",
-                                "default": "Reverse"
+                                "default": "Reverse",
+                                "x-position": 4
                             },
                             "forward_pin": {
                                 "title": "Forward Pin",
                                 "x-name": "forward_pin",
                                 "x-hidden": false,
                                 "type": "integer",
-                                "description": "Pin number for forward action"
+                                "x-required": true,
+                                "description": "Pin number for forward action",
+                                "x-position": 5
                             },
                             "reverse_pin": {
                                 "title": "Reverse Pin",
                                 "x-name": "reverse_pin",
                                 "x-hidden": false,
-                                "type": "integer",
-                                "description": "Pin number for reverse action, only applicable for two way remotes"
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "x-required": false,
+                                "description": "Pin number for reverse action, only applicable for two way remotes",
+                                "default": null,
+                                "x-position": 6
                             },
                             "priority": {
                                 "title": "Priority",
                                 "x-name": "priority",
                                 "x-hidden": false,
-                                "type": "integer",
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "x-required": false,
                                 "description": "Lower number = higher priority. If multiple remotes are active, the one with the lowest priority will be stopped.",
-                                "default": 1
+                                "default": 1,
+                                "x-position": 7
                             }
                         },
                         "additionalElements": true,
                         "required": [
                             "name",
-                            "forward_pin",
-                            "reverse_pin"
-                        ]
+                            "forward_pin"
+                        ],
+                        "x-collapsible": true,
+                        "x-defaultCollapsed": false
                     }
                 },
                 "max_concurrent_remotes": {
                     "title": "Max Concurrent Remotes",
                     "x-name": "max_concurrent_remotes",
                     "x-hidden": false,
-                    "type": "integer",
-                    "description": "Maximum number of remotes to run concurrently"
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "x-required": false,
+                    "description": "Maximum number of remotes to run concurrently",
+                    "default": 1,
+                    "x-position": 1
                 },
                 "motor_controller": {
-                    "format": "doover-application",
                     "title": "Motor Controller",
                     "x-name": "motor_controller",
                     "x-hidden": false,
-                    "type": "string",
+                    "format": "doover-resource-application",
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "x-required": false,
                     "description": "(Optional) The motor controller powering the hydraulic pump",
-                    "default": null
+                    "default": null,
+                    "x-position": 2
                 }
             },
             "additionalElements": true,
             "required": [
-                "hydraulic_remotes",
-                "max_concurrent_remotes"
+                "hydraulic_remotes"
             ]
         },
         "key": "22d7b209-d402-4968-9598-69698f94625a",
@@ -127,6 +171,17 @@
         "code_repo_id": null,
         "export_config_command": null,
         "run_command": null,
-        "lambda_arn": null
+        "lambda_arn": null,
+        "ui_schema": {
+            "displayString": "$config.app().APP_DISPLAY_NAME",
+            "hidden": "$config.app().hidden:boolean:false:boolean:false",
+            "position": "$config.app().dv_app_position:number:100",
+            "icon": null,
+            "colour": null,
+            "defaultOpen": "$config.app().dv_app_default_open:boolean",
+            "type": "uiApplication",
+            "name": "$config.app().APP_KEY",
+            "children": {}
+        }
     }
 }
