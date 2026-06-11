@@ -12,7 +12,7 @@ class HydraulicsControllerState:
 
     states = [
         {"name": "off"},
-        {"name": "error", "timeout": error_timeout_secs, "on_timeout": "clear_error"},
+        {"name": "error", "timeout": error_timeout_secs, "on_timeout": "stop"},
         {"name": "user_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
         {"name": "user_active"},
         {"name": "auto_prep", "timeout": prep_timeout_secs, "on_timeout": "error"},
@@ -26,7 +26,8 @@ class HydraulicsControllerState:
         {"trigger": "user_ready", "source": ["user_prep"], "dest": "user_active"},
         {"trigger": "auto_start_prep", "source": ["off", "error"], "dest": "auto_prep"},
         {"trigger": "auto_ready", "source": ["auto_prep"], "dest": "auto_active"},
-        {"trigger": "stop", "source": ["test","user_prep", "user_active","auto_prep","auto_active"], "dest": "off"},
+        {"trigger": "stop", "source": "*", "dest": "off"},
+        {"trigger": "auto_stop", "source": ["auto_prep", "auto_active"], "dest": "off", "after": "clear_user_commands"},
         {"trigger": "start_test", "source": "*", "dest": "test"},
     ]
 
@@ -87,13 +88,13 @@ class HydraulicsControllerState:
         
         elif s == "auto_prep":
             if not self.app.has_auto_command_requests():
-                await self.stop()
+                await self.auto_stop()
             elif self.app.is_auto_active_ready():
                 await self.auto_ready()
         
         elif s == "auto_active":
             if not self.app.has_auto_command_requests():
-                await self.stop()
+                await self.auto_stop()
             elif not self.app.is_auto_active_ready():
                 await self.error()
 
