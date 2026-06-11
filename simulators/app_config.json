@@ -1,6 +1,22 @@
 {
-    "simulator_app_key": "sim_app_key",
-    "digital_input_count": 1,
-    "digital_output_count": 2,
-    "a_funny_message": "yeeha"
+    "hydraulic_remotes": [
+        {
+            "name": "Gate 1",
+            "two_way": true,
+            "forward_label": "Up",
+            "reverse_label": "Down",
+            "forward_pin": 0,
+            "reverse_pin": 1,
+            "priority": 1
+        },
+        {
+            "name": "Ram",
+            "two_way": false,
+            "forward_label": "Engage",
+            "forward_pin": 2,
+            "priority": 2
+        }
+    ],
+    "max_concurrent_remotes": 1,
+    "motor_controller": null
 }
